@@ -32,23 +32,14 @@ if [ -e $INSTALL_COUCH/.init ]; then COUCH_INIT_DONE=1; else COUCH_INIT_DONE=0; 
 
 #callbacks to activate or show initialisation has been done
 activate_asyncstageout(){
-    if [ ! -d "$INSTALL_AS" ]; then
-        mkdir -p $INSTALL_AS
-    fi
     touch $INSTALL_AS/.using
     cp $ROOT_DIR/apps/asyncstageout/configuration/Example.py $CONFIG_AS/config-template.py
 }
 
 inited_asyncstageout(){
-    if [ ! -d "$INSTALL_AS" ]; then
-        mkdir -p $INSTALL_AS
-    fi
     touch $INSTALL_AS/.init
 }
 inited_couch(){
-    if [ ! -d "$INSTALL_AS" ]; then
-        mkdir -p $INSTALL_AS
-    fi
     touch $INSTALL_COUCH/.init
 }
 
@@ -75,7 +66,7 @@ load_secrets_file(){
     local MATCH_WMSTATS_URL=`cat $ASYNC_SECRETS_LOCATION | grep WMSTATS_URL | sed s/WMSTATS_URL=//`
     local MATCH_UFC_SERVICE_URL=`cat $ASYNC_SECRETS_LOCATION | grep UFC_SERVICE_URL | sed s/UFC_SERVICE_URL=//`
     local MATCH_OPS_PROXY=`cat $ASYNC_SECRETS_LOCATION | grep OPS_PROXY | sed s/OPS_PROXY=//`
-    local MATCH_AMQ_AUTH_FILE=`cat $ASYNC_SECRETS_LOCATION | grep AMQ_AUTH_FILE | sed s/AMQ_AUTH_FILE=//`
+    local MATCH_FILES_DB=`cat $ASYNC_SECRETS_LOCATION | grep FILES_DB | sed s/FILES_DB=//`
 
     if [ "x$MATCH_COUCH_USER" == "x" ]; then
         COUCH_USER=asynccouch;
@@ -94,6 +85,14 @@ load_secrets_file(){
     if [ ! "x$MATCH_COUCH_HOST" == "x" ]; then
         COUCH_HOST=$MATCH_COUCH_HOST;
     fi
+    
+    if [ "x$MATCH_FILES_DB" == "x" ]; then
+        FILES_DB=http://$COUCH_USER:$COUCH_PASS@$COUCH_HOST_NAME:$COUCH_PORT;
+    else
+        FILES_DB=$MATCH_FILES_DB;
+    fi
+   	
+
     # look for couch ssl certificate if not found check X509_USER_CERT and X509_USER_PROXY
     if [ ! "x${X509_USER_CERT:-$X509_USER_PROXY}" == "x" ]; then
         COUCH_CERT_FILE=$MATCH_COUCH_CERT_FILE;
@@ -118,9 +117,6 @@ load_secrets_file(){
     if [ ! "x$MATCH_OPS_PROXY" == "x" ]; then
         OPS_PROXY=$MATCH_OPS_PROXY;
     fi
-    if [ ! "x$MATCH_AMQ_AUTH_FILE" == "x" ]; then
-        AMQ_AUTH_FILE=$MATCH_AMQ_AUTH_FILE;
-    fi
 }
 
 print_settings(){
@@ -131,7 +127,7 @@ print_settings(){
     echo "COUCH_PASS=               $COUCH_PASS                 "
     echo "COUCH_HOST=               $COUCH_HOST                 "
     echo "COUCH_PORT=               $COUCH_PORT                 "
-
+    echo "FILES_DB=               $FILES_DB                 "
 }
 
 #
@@ -249,10 +245,10 @@ init_async(){
                        --wmstats_url=$WMSTATS_URL \
                        --ufc_service_url=$UFC_SERVICE_URL \
 	               --ops_proxy=$OPS_PROXY \
-                       --amq_auth_file=$AMQ_AUTH_FILE \
-
+		       --files_db=$FILES_DB \	
     export WMAGENT_CONFIG=$CONFIG_AS/config.py
     export ASYNC_ROOT=$ROOT_DIR/apps/asyncstageout
+    echo $FILES_DB
     wmagent-couchapp-init;
     unset ASYNC_ROOT
     unset WMAGENT_CONFIG
@@ -265,10 +261,10 @@ init_async(){
 #
 init_asyncstageout(){
 
-    if [ $AS_INIT_DONE -eq 0 ]; then
+#    if [ $AS_INIT_DONE -eq 0 ]; then
       echo "Initialising AsyncStageOut..."
       init_async;
-    fi
+ #   fi
 }
 
 start_asyncstageout(){
@@ -370,4 +366,3 @@ case $1 in
     echo "$0: unknown action '$1', please try '$0 help' or documentation." 1>&2
     exit 1 ;;
 esac
-
