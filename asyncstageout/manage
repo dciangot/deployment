@@ -261,10 +261,10 @@ init_async(){
 #
 init_asyncstageout(){
 
-#    if [ $AS_INIT_DONE -eq 0 ]; then
+    if [ $AS_INIT_DONE -eq 0 ]; then
       echo "Initialising AsyncStageOut..."
       init_async;
- #   fi
+    fi
 }
 
 start_asyncstageout(){
