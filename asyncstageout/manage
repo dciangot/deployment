@@ -252,6 +252,7 @@ init_async(){
                        --ufc_service_url=$UFC_SERVICE_URL \
                        --ops_proxy=$OPS_PROXY \
                        --amq_auth_file=$AMQ_AUTH_FILE \
+                       --central_logdb_url='' \
 
     export WMAGENT_CONFIG=$CONFIG_AS/config.py
     export ASYNC_ROOT=$ROOT_DIR/apps/asyncstageout
