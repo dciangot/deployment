@@ -4,8 +4,9 @@ config = Configuration()
 
 # web_server configuration
 config.component_('web_server')
-config.web_server.thread_pool = 30
+config.web_server.thread_pool = 150
 config.web_server.socket_queue_size = 100
+config.web_server.timeout_monitor = True
 config.web_server.loglevel = 0
 config.web_server.host = '0.0.0.0'
 config.web_server.log_screen = True
@@ -46,6 +47,16 @@ config.mongodb.dburi = ['mongodb://localhost:8230']
 config.mongodb.lifetime = 300
 config.mongodb.dbname = 'das'
 
+# pycurl configuration
+config.component_('pycurl')
+config.pycurl.FOLLOWLOCATION=1
+config.pycurl.CONNECTTIMEOUT=270
+config.pycurl.MAXREDIRS=5
+config.pycurl.NOSIGNAL=1
+config.pycurl.TIMEOUT=270
+config.pycurl.SSL_VERIFYPEER=False
+config.pycurl.VERBOSE=0
+
 # dasdb configuration
 config.component_('dasdb')
 config.dasdb.dbname = 'das'
@@ -58,18 +69,6 @@ config.dasdb.delta_ttl = 60
 config.dasdb.cleanup_worker = True
 config.dasdb.cleanup_interval = 600
 config.dasdb.cleanup_delta_ttl = 3600
-
-# loggingdb configuration
-config.component_('loggingdb')
-config.loggingdb.capped_size = 104857600
-config.loggingdb.collname = 'db'
-config.loggingdb.dbname = 'logging'
-
-# analyticsdb configuration
-config.component_('analyticsdb')
-config.analyticsdb.collname = 'db'
-config.analyticsdb.dbname = 'analytics'
-config.analyticsdb.history = 5184000
 
 # mappingdb configuration
 config.component_('mappingdb')
@@ -94,11 +93,10 @@ config.das.core_workers = 50
 config.das.api_workers = 2
 config.das.error_expire = 300
 config.das.emptyset_expire = 5
-config.das.thread_weights = ['phedex:5', 'dbs3:5']
+#config.das.thread_weights = ['phedex:5', 'dbs3:5']
 config.das.parserdir = '%s/state/das' % __file__.rsplit('/', 4)[0] # area owned by _das account
-config.das.services = ['dbs','dbs3','phedex','dashboard','monitor','runregistry','sitedb2','combined','conddb','reqmgr','mcm']
+config.das.services = ['dbs3','phedex','dashboard','monitor','runregistry','sitedb2','combined','conddb','reqmgr','mcm']
 config.das.main_dbs = 'dbs3'
-config.das.dbs_instances = ['prod/global', 'prod/phys01', 'prod/phys02', 'prod/phys03', 'prod/caf']
 
 # keyword search configuration
 config.component_('keyword_search')
